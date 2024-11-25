@@ -1,0 +1,193 @@
+﻿@model FitnessHub.Models.GymClassViewModel
+@{
+    ViewData["Title"] = "Create Gym Class";
+}
+
+<h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Add Gym Class</h2>
+<hr />
+<div class="row view-form-style">
+    <div class="col-md-4 offset-md-4">
+        <form asp-action="CreateGymClass">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="GymId" id="gymSelect" value="@Model.GymId" />
+
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label">Category</label>
+                <select asp-for="CategoryId" id="categorySelect" class="form-control" asp-items="@Model.CategoriesList">
+                    <option value="0">Select a Category</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            @* TYPE SELECT *@
+
+            <div class="form-group">
+                <label asp-for="ClassTypeId" class="control-label">Class Type</label>
+                <select asp-for="ClassTypeId" id="typeSelect" class="form-control" asp-items="@Model.ClassTypeList">
+                    <option value="0">Select a Class Type</option>
+                </select>
+                <span asp-validation-for="ClassTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DateStart" class="control-label"></label>
+                <input id="dateStart" asp-for="DateStart" type="datetime-local" class="form-control"
+                       value="@Model.DateStart.ToString("yyyy-MM-ddTHH:mm")"
+                       min="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="DateStart" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DateEnd" class="control-label"></label>
+                <input id="dateEnd" asp-for="DateEnd" type="datetime-local" class="form-control"
+                       value="@Model.DateEnd.ToString("yyyy-MM-ddTHH:mm")"
+                       min="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="DateEnd" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="InstructorId" class="control-label">Instructor</label>
+                <select asp-for="InstructorId" id="instructorSelect" class="form-control" asp-items="@Model.InstructorsList">
+                    <option value="">Select an Instructor</option>
+                </select>
+                <span asp-validation-for="InstructorId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Capacity" class="control-label">Capacity</label>
+                <input asp-for="Capacity" class="form-control" />
+                <span asp-validation-for="Capacity" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button id="process" type="submit" class="btn btn-primary me-4">
+                    <i class="fa-solid fa-check me-2"></i>Create
+                </button>
+                <a asp-action="GymClasses" class="btn btn-secondary">
+                    <i class="fa-solid fa-chevron-left me-2"></i>Back
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        // Scripts for getting available aircrafts for given inputs
+        <script type="text/javascript">
+            $(document).ready(function () {
+                function UpdateAvailableInstructors() {
+                    var dateStart = $("#dateStart").val();
+                    var dateEnd = $("#dateEnd").val();
+                    var gymSelect = $("#gymSelect").val();
+
+                    $.ajax({
+                        url: '@Url.Action("GetAvailableInstructorsGym", "Classes")',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            dateStart: dateStart,
+                            dateEnd: dateEnd,
+                            gymSelect: gymSelect,
+                        },
+                        success: function (instructors) {
+                            console.log('Received instructors:', instructors); // Debug: log the response
+                            $("#instructorSelect").empty(); // Clear existing options
+                            $("#instructorSelect").append('<option value="0">Select an Instructor</option>'); // Add placeholder
+
+                            $.each(instructors, function (index, instructor) {
+                                console.log('Instructor:', instructor); // Debug: log each instructor object
+                                $("#instructorSelect").append('<option value="' + instructor.id + '">' + instructor.firstName + ' ' + instructor.lastName + '</option>');
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching instructors:', status, error); // Improved error logging
+                            alert('Failed to retrieve available Instructors: ' + error);
+                        }
+                    });
+                }
+
+                // Call UpdateAvailableInstructors immediately when the page loads
+                UpdateAvailableInstructors();
+
+                // Bind the change event to date and gym dropdowns
+                $("#dateStart, #dateEnd, #gymSelect").change(UpdateAvailableInstructors);
+            });
+        </script>
+
+        // Scripts for getting types from category
+        <script type="text/javascript">
+            $(document).ready(function () {
+                function GetTypesFromCategory() {
+                    var categoryId = $("#categorySelect").val();
+
+                    $.ajax({
+                        url: '@Url.Action("GetClassTypesFromCategory", "Classes")',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            categoryId: categoryId,
+                        },
+                        success: function (types) {
+                            console.log('Received types:', types); // Debug: log the response
+
+                            if (!Array.isArray(types)) {
+                                console.error('Unexpected response format:', types);
+                                alert('Error: Unexpected response format.');
+                                return;
+                            }
+
+                            $("#typeSelect").empty();
+                            $("#typeSelect").append('<option value="0">Select a Class Type</option>');
+
+                            $.each(types, function (index, type) {
+                                console.log('Type:', type); // Debug: log each type object
+
+                                const typeName = type.Name || type.name || 'Unknown';
+                                const typeId = type.id || type.ID;
+
+                                if (typeId && typeName) {
+                                    $("#typeSelect").append(
+                                        '<option value="' + typeId + '">' + typeName + '</option>'
+                                    );
+                                }
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching class types:', status, error);
+                            alert('Failed to retrieve available class types: ' + error);
+                        }
+                    });
+                }
+
+                // Call GetTypesFromCategory on page load
+                GetTypesFromCategory();
+
+                // Bind the change events for category select
+                $("#categorySelect").change(GetTypesFromCategory);
+            });
+        </script>
+    }
+}
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('process').addEventListener('click', function (event) {
+            // Prevenir o envio imediato do formulário
+            event.preventDefault();
+
+            var submitButton = event.target;
+
+            // Desabilitar o botão e mudar o texto
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa-solid fa-spinner spin-icon me-2"></i>Processing';
+
+            // Submeter o formulário após a modificação
+            submitButton.closest('form').submit();
+        });
+    });
+</script>
+

@@ -1,0 +1,171 @@
+﻿@model FitnessHub.Models.RegisterNewUserViewModel
+
+@{
+    ViewData["Title"] = "Register";
+    var maxDate = DateTime.Now;
+}
+
+
+
+<h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Register</h2>
+<hr />
+
+<div class="row view-form-style">
+    <div class="col-md-4 offset-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label">First Name</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label">Last Name</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BirthDate" class="control-label"></label>
+                <input asp-for="BirthDate" format="dd/MM/yyyy" max="@maxDate.ToString("yyyy-MM-dd")" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <label asp-for="CountryCallingcode" class="control-label">Country</label>
+                    <select asp-for="CountryCallingcode" asp-items="Model.Countries" class="form-control" id="countrySelect">
+                        <option value="0" disabled selected>Code</option>
+                    </select>
+                    <span asp-validation-for="CountryCallingcode" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-9">
+                    <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" type="number" id="phoneNumber" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Gym" class="control-label">Gym</label>
+                <select asp-for="Gym" asp-items="Model.Gyms" class="form-control" id="gymSelect">
+                    <option value="0" disabled selected>Select a gym</option>
+                </select>
+                <span asp-validation-for="Gym" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Confirm" class="control-label">Confirm Password</label>
+                <input asp-for="Confirm" type="password" class="form-control" />
+                <span asp-validation-for="Confirm" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button id="process" type="submit" class="btn btn-primary me-3">
+                    <i class="fa-solid fa-address-card me-2"></i>Register
+                </button>
+                <a asp-action="Login" class="btn btn-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (ViewBag.EmailSent == true)
+{
+    <div id="emailSentModal" class="modal fade text-center" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Account!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <span>An email has been sent. Please check your inbox to confirm your account.</span><br />
+                    <div>
+                        <i style="color:green; font-size:3em;" class="fa-solid fa-envelope-circle-check mt-2"></i>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a asp-action="Login" class="btn btn-primary">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>Go to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Disable default 'Select a gym' option
+            const gymSelect = document.getElementById('gymSelect');
+            if (gymSelect) {
+                const defaultGymOption = gymSelect.querySelector('option[value="0"]');
+                if (defaultGymOption) {
+                    defaultGymOption.disabled = true;  // Disable the default "Select a gym" option
+                }
+            }
+        });
+    </script>
+
+
+    <script>
+        window.onload = function () {
+            var emailSent = '@ViewBag.EmailSent';
+
+            if (emailSent === "True") {
+                var emailSentModal = new bootstrap.Modal(document.getElementById('emailSentModal'));
+                emailSentModal.show();
+            }
+        };
+    </script>
+
+        <script>
+            function showValueOnly(selectElement) {
+                // Get the selected option
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+                // Set the displayed text to the value of the selected option
+                selectElement.setAttribute("data-original-text", selectedOption.text);
+                selectedOption.text = selectedOption.value;
+            }
+    </script>
+}
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('process').addEventListener('click', function (event) {
+            // Prevenir o envio imediato do formulário
+            event.preventDefault();
+
+            var submitButton = event.target;
+
+            // Desabilitar o botão e mudar o texto
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa-solid fa-spinner spin-icon me-2"></i>Processing';
+
+            // Submeter o formulário após a modificação
+            submitButton.closest('form').submit();
+        });
+    });
+</script>

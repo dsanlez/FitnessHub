@@ -1,0 +1,72 @@
+﻿@model IEnumerable<FitnessHub.Data.Entities.Users.Membership>
+
+@{
+    ViewData["Title"] = "Memberships";
+}
+
+@if (ViewBag.ShowSignUp == true)
+{
+    <div style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+        <!-- Wrapper for the button and heading -->
+        <div style="display: inline-flex; align-items: center;">
+            <!-- Button next to the text with margin -->
+            <a style="margin-left: -100px" asp-action="SignUp" class="btn btn-primary">
+                <i class="fa-solid fa-address-card me-2"></i>Sign Up
+            </a>
+            <!-- Heading centered -->
+            <h2 class="view-text" style="font-weight: bolder; margin: 0; margin-left: 40px">@ViewData["Title"]</h2>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="container mb-4 view-text">
+        <h2 style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Memberships</h2>
+    </div>
+}
+
+@if (Model.Any())
+{
+    <div class="row justify-content-center mt-2">
+        @foreach (var membership in Model)
+        {
+            <div class="col-lg-3 col-md-3 col-sm-8 mx-2">
+                <div class="card">
+                    <div style="text-align: center; font-size: 2em; font-weight: bold" class="card-header">@membership.Name</div>
+                    <div class="card-body">
+                        <div class="card-text">
+                            <p style="margin-bottom: 0; margin-top: 0">@membership.Description</p>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="color: whitesmoke; font-size: 1.3em;">
+                        <small><strong>@membership.MonthlyFee.ToString("C2") / Month</strong></small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <hr />
+    <h4 class="no-items-list">There are no Memberships available!</h4>
+}
+
+<div class="container mb-4 view-text">
+    <hr style="margin-bottom: 2.2rem; margin-top: 0" />
+
+    <div class="text-light">
+        At FitnessHub, we believe that fitness should be accessible to everyone, even if you're not ready for a membership just yet. That’s why we offer a wide range of free resources to support your fitness goals:<br /><br />
+        <ul>
+            <li><strong>Free Fitness Videos:</strong> Our platform provides access to a library of workout videos, expert tips, and training guides that can help you stay active, even from the comfort of your home. These videos cover everything, making it easy to follow along and stay fit on your own schedule.</li>
+            <br />
+            <li><strong>Community Support:</strong> Even without a membership, you can join our FitnessHub online community. Connect with fitness enthusiasts from around the globe, participate in challenges, and stay motivated with the latest content and fitness trends.</li>
+        </ul>
+        <br />
+        <h5>Join the FitnessHub Family</h5>
+        Whether you're working out in one of our gyms, following our free video tutorials, or joining a class across the world, you’re part of the FitnessHub community. Our mission is to provide the tools, spaces, and support you need to lead a healthy, active lifestyle — anywhere in the world.
+
+        <span style="font-weight: bolder">We look forward to welcoming you to FitnessHub and helping you stay on your journey toward a healthier, stronger you, no matter where you are.</span>
+    </div>
+</div>

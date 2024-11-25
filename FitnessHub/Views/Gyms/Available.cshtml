@@ -1,0 +1,70 @@
+﻿@model IEnumerable<FitnessHub.Data.Entities.Gym>
+
+@{
+    ViewData["Title"] = "Gyms";
+}
+
+<div class="row">
+    <div class="col-3" style="margin-top: -4px">
+        <div class="mb-2">
+            <input type="text" id="countryFilter" class="form-control" placeholder="Search by Country">
+        </div>
+        <div>
+            <input type="text" id="cityFilter" class="form-control" placeholder="Search by City">
+        </div>
+    </div>
+    <div class="col-6 view-text">
+        <h2 style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 2vh">@ViewData["Title"]</h2>
+    </div>
+</div>
+
+@if (Model == null || Model.Any())
+{
+    <div class="row justify-content-center mt-2" id="gymsContainer">
+        @foreach (var gym in Model)
+        {
+            <div class="col-lg-3 col-md-3 col-sm-8 mx-2 gym-card" style="margin-bottom: 2.3rem; cursor: pointer" data-country="@gym.Country" data-city="@gym.City"
+                 onclick="window.location.href='@Url.Action("Details", new { id = gym.Id })'">
+                <div class="card h-100">
+                    <div class="card-header text-center fw-bold" style="font-size: 2em;">
+                        @gym.Name
+                    </div>
+                    <div class="card-body position-relative p-0 overflow-hidden">
+                        <!-- Gym Image -->
+                        <img src="@gym.ImageDisplay" alt="@gym.Name" class="gym-image">
+                    </div>
+                    <div class="card-footer text-white">
+                        <i class="fa-solid fa-location-dot me-2"></i><small class="me-3">@gym.City, @gym.Country</small><img src="@gym.FlagUrl" alt="@gym.Country Flag" style="width:auto; height:1.5em; float: inline-end; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3)" />
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <hr />
+    <h4 class="no-items-list">No Gyms were found!</h4>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#countryFilter, #cityFilter').on('input', function () {
+            var countryQuery = $('#countryFilter').val().toLowerCase();
+            var cityQuery = $('#cityFilter').val().toLowerCase();
+
+            $('.gym-card').each(function () {
+                var country = $(this).data('country').toLowerCase();
+                var city = $(this).data('city').toLowerCase();
+
+                if (country.includes(countryQuery) && city.includes(cityQuery)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>

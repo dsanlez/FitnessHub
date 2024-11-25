@@ -1,0 +1,116 @@
+﻿@model FitnessHub.Data.Entities.Users.MembershipDetails
+
+@{
+    ViewData["Title"] = "My Membership";
+}
+
+@if (ViewBag.HasMembership == false)
+{
+    <div style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+        <!-- Wrapper for the button and heading -->
+        <div style="display: inline-flex; align-items: center;">
+            <!-- Button next to the text with margin -->
+            <a style="margin-left: -100px" asp-action="SignUp" class="btn btn-primary">
+                <i class="fa-solid fa-address-card me-2"></i>Sign Up
+            </a>
+            <!-- Heading centered -->
+            <h2 class="view-text" style="font-weight: bolder; margin: 0; margin-left: 40px">
+                My Membership
+            </h2>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mb-4 view-text">
+        <h2 style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">My Membership</h2>
+    </div>
+}
+
+@if (Model != null)
+{
+    <div class="row justify-content-center mt-2">
+        <div class="col-lg-3 col-md-3 col-sm-8 mx-2" style="margin-bottom: 2.3rem">
+            <div class="card">
+                <div style="text-align: center; font-size: 2em; font-weight: bold" class="card-header">@Model.Membership.Name</div>
+                <div class="card-body">
+                    <div class="card-text">
+                        <p>@Model.Membership.Description</p>
+
+                        <p>
+                            <strong>Status:</strong> @if (@Model.Status)
+                            {
+                                <span>Active</span>
+                            }
+                            else
+                            {
+                                <span>Inactive</span>
+                            }
+                        </p>
+                        <p><strong>Date of Renewal:</strong> @Model.DateRenewal.ToShortDateString()</p>
+
+                        <div class="d-flex">
+                            <form asp-action="CancelMembership" class="me-2">
+                                <button type="submit" class="btn btn-danger me-2">
+                                    <i class="fa-solid fa-trash-can me-2"></i>Cancel
+                                </button>
+                            </form>
+
+                            @if (Model.Status == false)
+                            {
+                                <form asp-action="RenewMembership">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa-solid fa-rotate me-2"></i>Renew
+                                    </button>
+                                </form>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer" style="color: whitesmoke; font-size: 1.3em;">
+                    <small><strong>@Model.Membership.MonthlyFee.ToString("C2") / Month</strong></small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <hr />
+    <h4 class="no-items-list">You have no Membership!</h4>
+}
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you really want to cancel the membership ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-x me-2"></i>Cancel</button>
+                <form id="deleteForm" asp-action="CancelMembership" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-2"></i>
+                        Cancel Membership
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var classId = button.getAttribute('data-class-id');
+        var form = document.getElementById('deleteForm');
+        form.querySelector('#classId').value = classId;
+    });
+</script>
+

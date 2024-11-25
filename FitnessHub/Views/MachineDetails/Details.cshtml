@@ -1,0 +1,115 @@
+﻿@using FitnessHub.Helpers
+@model FitnessHub.Data.Entities.GymMachines.MachineDetails
+@inject IConverterHelper converterHelper 
+
+@{
+    ViewData["Title"] = "Details";
+    string embedVideoUrl = converterHelper.YoutubeUrlToEmbed(Model.Machine.TutorialVideoUrl);
+}
+
+<div class="container detailsdelete-text">
+    <h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">@Model.Machine.Name Details</h2>
+    <hr />
+    <div class="row">
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.MachineNumber)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.MachineNumber)
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Machine)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.Machine.Name)
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Machine.Category)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.Machine.Category.Name)
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.StatusDisplay)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.StatusDisplay)
+                        </dd>
+                    </dl>
+
+                    <div class="form-group">
+                        <a asp-action="Index" class="btn btn-secondary me-2"><i class="fa-solid fa-chevron-left me-2"></i>Back</a>
+                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole("Admin"))
+                        {
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-class-id="@Model.Id">
+                                <i class="fa-solid fa-trash-can me-2"></i>Delete
+                            </button>
+                        }
+                        <div asp-validation-summary="ModelOnly" class="text-danger mt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Middle: Image -->
+        <div class="col-md-3 mb-4">
+            <dl class="row">
+                <dd class="col-sm-12">
+                    <img src="@Model.Machine.ImageDisplay" alt="Gym machine image" style="max-width: 100%; height: auto; max-height: 20vw" />
+                </dd>
+            </dl>
+        </div>
+
+        <!-- Right: Video -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dd class="col-sm-12">
+                    <iframe style="height: 20vw; width:inherit" src="@embedVideoUrl"
+                            title="YouTube Video Player"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you really want to delete this class type?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-x me-2"></i>Cancel</button>
+                <form id="deleteForm" asp-action="Delete" method="post" style="display:inline;">
+                    <input type="hidden" id="classId" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-2"></i>
+                        Confirm Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var classId = button.getAttribute('data-class-id');
+        var form = document.getElementById('deleteForm');
+        form.querySelector('#classId').value = classId;
+    });
+</script>

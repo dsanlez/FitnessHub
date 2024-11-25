@@ -1,0 +1,231 @@
+﻿@model WorkoutViewModel
+
+@{
+    ViewData["Title"] = "Update Workout";
+}
+
+<h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Update Workout</h2>
+
+<hr />
+
+<div class="row view-form-style">
+    <div class="col-md-4 offset-md-4">
+        <div class="form-group">
+            <label class="control-label">Client</label>
+            <input readonly class="form-control" value="@Model.ClientEmail" />
+        </div>
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="ClientEmail" />
+
+            <!-- Exercises Section -->
+            <h4 class="view-text" style="color: #ff6201; font-size: 1.8em; text-align:center">Exercises</h4>
+
+            <span id="minOneExWarning" class="text-danger" style="display:none">A Workout must contain at least one Exercise</span>
+
+            <div id="exerciseContainer">
+                @for (var i = 0; i < Model.Exercises.Count; i++)
+                {
+                    var iMarginClass = i > 0 ? "mt-5" : "";
+                    <div class="exercise">
+                        <input type="hidden" asp-for="Exercises[i].Id" />
+                            <div class="form-group @($"form-group {iMarginClass}")">
+                            <label for="Exercises[@i].Name" class="control-label">Name</label>
+                            <input type="text" class="form-control" name="exercises[@i].Name" value="@Model.Exercises[i].Name" />
+                            <span asp-validation-for="Exercises[i].Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Exercises[@i].MachineId" class="control-label">Machine</label>
+                            @Html.DropDownListFor(
+                                     model => model.Exercises[i].MachineId,
+                                     new SelectList(Model.Machines, "Id", "Name"),
+                                     "Select a Machine",
+                                     new { @class = "form-control" }
+                                     )
+
+                            <span asp-validation-for="Exercises[i].MachineId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Exercise[@i].Time" class="control-label">Duration</label>
+                            <input step="1" type="time" class="form-control" name="exercises[@i].Time" value="@Model.Exercises[i].Time" />
+                            <span asp-validation-for="Exercises[i].Time" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Exercises[@i].Repetitions" class="control-label">Repetitions</label>
+                            <input type="number" value="@Model.Exercises[i].Repetitions" class="form-control" name="exercises[@i].Repetitions" />
+                            <span asp-validation-for="Exercises[i].Repetitions" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Exercises[@i].Sets" class="control-label">Sets</label>
+                            <input type="number" value="@Model.Exercises[i].Sets" class="form-control" name="exercises[@i].Sets" />
+                            <span asp-validation-for="Exercises[i].Sets" class="text-danger"></span>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="Exercises[@i].DayOfWeek" class="control-label">Day of Week</label>
+                            <select class="form-control" name="exercises[@i].DayOfWeek">
+                                @foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                                {
+                                    @if (Model.Exercises[i].DayOfWeek == day)
+                                    {
+                                        <option selected value="@day">@day</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@day">@day</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="Exercises[i].DayOfWeek" class="text-danger"></span>
+                        </div>
+
+@*                         <div class="form-group">
+                            <label for="Exercises[@i].DayOfWeek" class="control-label">Day of Week</label>
+                            @Html.DropDownListFor(
+                                     model => model.Exercises[i].DayOfWeek,
+                                     new SelectList(Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>().Select(d => new { Value = d, Text = d.ToString() }), "Value", "Text"),
+                                     new { @class = "form-control" }
+                                     )
+                            <span asp-validation-for="Exercises[i].DayOfWeek" class="text-danger"></span>
+                        </div> *@
+
+@*                         <div class="form-group">
+                            <label for="Exercise[@i].Notes" class="control-label">Notes</label>
+                            <textarea class="form-control" name="exercises[@i].Notes" rows="3">@Model.Exercises[i].Notes</textarea>
+                            <span asp-validation-for="Exercises[i].Notes" class="text-danger"></span>
+                        </div> *@
+
+                        <div class="form-group">
+                            <label for="Exercise[@i].Notes" class="control-label">Notes</label>
+                            <textarea class="form-control" name="exercises[@i].Notes" rows="3">@Model.Exercises[i].Notes</textarea>
+                            <span asp-validation-for="Exercises[i].Notes" class="text-danger"></span>
+                        </div>
+
+                        <button type="button" class="btn btn-danger remove-exercise"><i class="fa-solid fa-minus me-2"></i>Remove this Exercise</button>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mt-4 mb-3">
+                <button type="button" id="addExercise" class="btn btn-success"><i class="fa-solid fa-plus me-2"></i>One more Exercise</button>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary me-4 mt-2">
+                    <i class="fa-solid fa-check me-2"></i>Save Workout
+                </button>
+                <a asp-action="Index" class="btn btn-secondary mt-2"><i class="fa-solid fa-chevron-left me-2"></i>Back</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var exerciseCount = @Model.Exercises.Count;
+            // Function to create a new exercise entry
+            function createNewExercise() {
+                return `
+                        <div class="exercise">
+                           <input type="hidden" asp-for="Exercises[${exerciseCount}].Id" />
+                                <div class="form-group mt-5">
+                                            <label for="Exercise_${exerciseCount}__Name" class="control-label">Name</label>
+                                    <input type="text" class="form-control" name="exercises[${exerciseCount}].Name" />
+                                    <span asp-validation-for="Exercise_${exerciseCount}__Name" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Exercise_${exerciseCount}__Machine" class="control-label">Machine</label>
+                                    <select id="Exercise_${exerciseCount}__Machine" class="form-control" name="exercises[${exerciseCount}].MachineId" required>
+                                        <option value="">Select a Machine</option>
+                                        @foreach (var machine in Model.MachinesDTO)
+                                        {
+                                              <option value="@machine.Id">@machine.Name</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Exercise_${exerciseCount}__MachineId" class="text-danger"></span>
+                                </div>
+
+                                                        <div class="form-group">
+                                            <label for="Exercise_${exerciseCount}__Time" class="control-label">Duration</label>
+                                                            <input step="1" type="time" class="form-control"  name="exercises[${exerciseCount}].Time" value="00:00:00" />
+                                            <span asp-validation-for="Exercise_${exerciseCount}__Time" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                            <label for="Exercise_${exerciseCount}__Repetitions" class="control-label">Repetitions</label>
+                                    <input type="number" class="form-control" name="exercises[${exerciseCount}].Repetitions" value="0" />
+                                    <span asp-validation-for="Exercise_${exerciseCount}__Repetitions" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                            <label for="Exercise_${exerciseCount}__Sets" class="control-label">Sets</label>
+                                    <input type="number" class="form-control" name="exercises[${exerciseCount}].Sets" value="0" />
+                                    <span asp-validation-for="Exercise_${exerciseCount}__Sets" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                            <label for="Exercise_${exerciseCount}__DayOfWeek" class="control-label">Day of Week</label>
+                                    <select class="form-control" name="exercises[${exerciseCount}].DayOfWeek">
+                                        @foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                                        {
+                                           <option value="@day">@day</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Exercise_${exerciseCount}__DayOfWeek" class="text-danger"></span>
+                                </div>
+                                    <div class="form-group">
+                                                    <label for="Exercise_${exerciseCount}__Notes" class="control-label">Notes</label>
+                                            <textarea class="form-control" name="exercises[${exerciseCount}].Notes" rows="3"></textarea>
+                                            <span asp-validation-for="exercises[${exerciseCount}].Notes"  class="text-danger"></span>
+                                </div>
+                                <button type="button" class="btn btn-danger remove-exercise"><i class="fa-solid fa-minus me-2"></i>Remove this Exercise</button>
+                                    </div>
+                        `;
+            }
+
+            // Add new exercise entry
+            $('#addExercise').click(function () {
+                var newExercise = createNewExercise();
+                $('#exerciseContainer').append(newExercise);
+
+                // Re-populate the new dropdown for machines
+                var machineSelect = $(`#Exercise_${exerciseCount}__Machine`);
+                machineSelect.empty();
+
+                machineSelect.append(`<option value="0">Select a Machine</option>`);
+
+        @foreach (var machine in Model.MachinesDTO)
+        {
+            <text>machineSelect.append(`<option value="@machine.Id">@machine.Name</option>`); </text>
+        }
+
+                    exerciseCount++;
+            });
+
+            // Remove an exercise entry
+            $(document).on('click', '.remove-exercise', function () {
+                // Check the count of exercises before removing
+                if ($('.exercise').length > 1) {
+                    $(this).closest('.exercise').remove();
+                    // Hide the warning message if it's currently displayed
+                    $('#minOneExWarning').hide();
+                } else {
+                    // Show the warning message if trying to remove the last exercise
+                    $('#minOneExWarning').show();
+                }
+            });
+        });
+    </script>
+
+}

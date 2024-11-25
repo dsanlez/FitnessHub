@@ -1,0 +1,105 @@
+﻿@model RegisterClientInClassViewModel
+
+@{
+    ViewData["Title"] = "Manage Client Classes";
+}
+
+<div class="container mb-5 view-text">
+    <h2 style="text-align: center; margin-bottom: 3vh; font-weight: bolder; margin-top: 3.5vh">
+        Manage @Model.ClientFullName's Classes<br /><span style="color: whitesmoke; font-size: 1rem">@Model.ClientEmail</span>
+    </h2>
+</div>
+
+@if (Model.IsEmailValid)
+{
+    @if (Model.Classes.Any())
+    {
+        <form method="post" asp-action="RegisterClientInClassConfirm">
+            <input type="hidden" name="ClientEmail" value="@Model.ClientEmail" />
+            <div class="row justify-content-center mt-2">
+                @foreach (var classItem in Model.Classes)
+                {
+                    <div class="col-lg-3 col-md-3 col-sm-8 mx-2">
+                        <div class="card">
+                            <div style="text-align: center; font-size: 2em; font-weight: bold" class="card-header"><div>@classItem.ClassType</div><div class="text-muted mb-1" style="font-size:1rem">@classItem.Category</div></div>
+
+                            <div class="card-body">
+                                
+                                <div class="card-text">
+                                    <p><strong>Instructor:</strong> @classItem.InstructorName</p>
+                                    <p><strong>Start Time:</strong> @classItem.DateStart.ToString("g")</p>
+                                    <p><strong>End Time:</strong> @classItem.DateEnd.ToString("g")</p>
+                                    <p><strong>Location:</strong> @classItem.Location</p>
+                                </div>
+
+                            </div>
+                            <div class="card-footer" style="color: whitesmoke; font-size: 1.3em">
+                                @{
+                                    var classId = classItem.Id;
+                                }
+                                <input type="checkbox" id="checkbox_@classItem.Id" name="SelectedClassIds" value="@classItem.Id" @(classItem.IsClientRegistered ? "checked" : "") onclick="RegistrationText('@classId')" />
+                                @if (classItem.IsClientRegistered)
+                                {
+                                    <span id="text_@classItem.Id">Registered</span>
+                                }
+                                else
+                                {
+                                    <span id="text_@classItem.Id">Unregistered</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group text-center mb-4">
+                <button id="process" type="submit" asp-action="RegisterClientInClassConfirm" class="btn btn-primary me-2"><i class="fa-solid fa-check me-2"></i>Confirm Changes</button>
+                <a asp-controller="ClientClasses" asp-action="FindClientByEmail" class="btn btn-secondary"><i class="fa-solid fa-chevron-left me-2"></i>Back</a>
+            </div>
+        </form>
+    }
+    else
+    {
+        <hr style="margin-bottom: 2.2rem" />
+        <h4 class="no-items-list">There are no available Classes!</h4>
+    }
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function RegistrationText(classid) {
+            var checkbox = document.getElementById('checkbox_' + classid);
+            var textStatus = document.getElementById('text_' + classid);
+            if (checkbox.checked) {
+                textStatus.innerText = "Registered";
+                console.log('Change to registered')
+            }
+            else {
+                textStatus.innerText = "Unregistered";
+                console.log('Change to Unregistered')
+            }
+        }
+    </script>
+}
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('process').addEventListener('click', function (event) {
+            // Prevenir o envio imediato do formulário
+            event.preventDefault();
+
+            var submitButton = event.target;
+
+            // Desabilitar o botão e mudar o texto
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa-solid fa-spinner spin-icon me-2"></i>Processing';
+
+            // Submeter o formulário após a modificação
+            submitButton.closest('form').submit();
+        });
+    });
+</script>

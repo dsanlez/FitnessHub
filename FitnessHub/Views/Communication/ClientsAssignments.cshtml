@@ -1,0 +1,95 @@
+﻿@model IEnumerable<FitnessHub.Data.Entities.Communication.ClientInstructorAppointment>
+
+@{
+    ViewData["Title"] = "Clients Assignments";
+}
+
+<div style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 0 1rem; margin-bottom: 4vh; margin-top: 3.5vh">
+    <!-- Wrapper for the button and heading -->
+    <div style="display: inline-flex; align-items: center;">
+        <!-- Heading centered -->
+        <h2 class="view-text" style="font-weight: bolder; margin: 0; margin-left: 40px">
+            Clients Assignments
+        </h2>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <hr />
+    <h4 class="no-items-list">There are no Assignments!</h4>
+}
+else
+{
+    <div class="card-container">
+        <div class="card cardTable">
+            <table id="dataTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Client.FullName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Client.Email)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.AssignDate)
+                        </th>
+                        <th>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Client.FullName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Client.Email)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.AssignDate)
+                            </td>
+                            <td>
+                                <div style="display: flex">
+                                    <a asp-controller="Users" asp-action="Details" asp-route-id="@item.Client.Id" class="btn btn-info me-2"><i class="fa-solid fa-user me-2"></i>Client</a>
+                                    <form asp-action="ResolveAssignment" method="post">
+                                        <input type="hidden" asp-for="@item.Id" name="id" />
+
+                                        <button class="btn btn-primary me-2"><i class="fa-solid fa-check me-2"></i>Done</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/English.json"
+                },
+                "aLengthMenu": [
+                    [20, 50, 100, 200, -1],
+                    [20, 50, 100, 200, "All"]
+                ],
+                columnDefs: [
+                    { orderable: false, targets: [-1] }
+                ]
+            });
+        });
+    </script>
+}

@@ -1,0 +1,152 @@
+﻿@model FitnessHub.Data.Entities.GymClasses.OnlineClass
+
+
+@{
+    ViewData["Title"] = "Online Class Details";
+}
+
+<div class="container detailsdelete-text">
+    <h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Online Class Details</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <dl class="row">
+                        <dd class="col-sm-12" style="font-size: 2rem; font-weight:700; margin-bottom: -5px !important">
+                            @Model.ClassType.Name
+                        </dd>
+                        <dd class="col-sm-12">
+                            <div class="rating-content">
+                                @{
+                                    if (Model.ClassType.NumReviews == 0)
+                                    {
+                                        <ejs-rating id="rating_@Model.ClassType.Id" value="(double)@Model.ClassType.Rating" readOnly="true"></ejs-rating>
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("N/A")
+                                        <i class="fa-solid fa-star ms-2"></i>
+                                    }
+                                }
+                            </div>
+                            <div class="text-nowrap">
+                                (@Model.ClassType.NumReviews reviews)
+                            </div>
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Category)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Model.Category.Name
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Instructor)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Model.Instructor.FirstName @Model.Instructor.LastName <br /> (@Model.Instructor.Email)
+
+                            <br />
+                            <div style="font-size: 0.8em !important">
+                                <div class="rating-content">
+                                    <ejs-rating id="rating_@Model.Instructor.Id" value="(double)@Model.Instructor.Rating" readOnly="true"></ejs-rating>
+                                </div>
+                                <div class="text-nowrap">
+                                    (@Model.Instructor.NumReviews reviews)
+                                </div>
+                            </div>
+
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.DateStart)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.DateStart)
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.DateEnd)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.DateEnd)
+                        </dd>
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Platform)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.Platform)
+                        </dd>
+                    </dl>
+
+                    <div class="form-group">
+                        <a asp-action="OnlineClasses" class="btn btn-secondary me-2"><i class="fa-solid fa-chevron-left me-2"></i>Back</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-class-id="@Model.Id">
+                            <i class="fa-solid fa-trash-can me-2"></i>Delete
+                        </button>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mt-4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-12">
+                            Client List
+                        </dt>
+                        @if (Model.Clients.Any())
+                        {
+                            @foreach (var client in Model.Clients)
+                            {
+                                <dd class="col-sm-12">
+                                    @client.FullName (@client.Email)
+                                </dd>
+                            }
+                        }
+                        else
+                        {
+                            <dd>None</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you really want to delete this online class?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-x me-2"></i>Cancel</button>
+                <form id="deleteForm" asp-action="DeleteOnlineClass" method="post" style="display:inline;">
+                    <input type="hidden" id="classId" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-2"></i>
+                        Confirm Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var classId = button.getAttribute('data-class-id');
+        var form = document.getElementById('deleteForm');
+        form.querySelector('#classId').value = classId;
+    });
+</script>

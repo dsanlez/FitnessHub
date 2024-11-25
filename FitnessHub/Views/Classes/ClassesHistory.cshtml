@@ -1,0 +1,318 @@
+﻿@model IEnumerable<FitnessHub.Models.ClassHistoryViewModel>
+
+@{
+    ViewData["Title"] = "Classes History";
+}
+
+<h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Classes History</h2>
+
+@if (!Model.Any())
+{
+    <hr />
+    <h4 class="no-items-list">There is no Class History!</h4>
+}
+else
+{
+    <div class="card-container">
+        <div class="card cardTable">
+            <table id="dataTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Type
+                        </th>
+                        <th>
+                            Class
+                        </th>
+                        <th>
+                            Category
+                        </th>
+                        <th>
+                            Gym
+                        </th>
+                        <th>
+                            Instructor
+                        </th>
+                        <th>
+                            Date Start
+                        </th>
+                        <th>
+                            Date End
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Platform)
+                        </th>
+                        <th>
+                            Video
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            Capacity
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.SubClass == "OnlineClass")
+                                {
+                                    <span>Online</span>
+                                }
+                                else if (item.SubClass == "GymClass")
+                                {
+                                    <span>Gym</span>
+                                }
+                                else
+                                {
+                                    <span>Video</span>
+                                }
+                            </td>
+                            <td>
+                                @item.ClassType
+                            </td>
+                          
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Category)
+                            </td>
+                            <td>
+                                @item.GymName
+                            </td>
+                            <td>
+                                @if (item.InstructorEmail.Length > 2)
+                                {
+                                    <span>@item.InstructorFullName</span>
+                                    <br />
+                                    <span>(@item.InstructorEmail)</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.DateStart != null)
+                                {
+                                    <span>@item.DateStart</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.DateEnd != null)
+                                {
+                                    <span>@item.DateEnd</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.SubClass == "VideoClass")
+                                {
+                                    <span>Youtube</span>
+                                }
+                                else if (item.Platform == null)
+                                {
+                                    <span>N/A</span>
+                                }
+                                else
+                                {
+                                    <span>@item.Platform</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.VideoClassUrl != null && item.VideoClassUrl.Length > 4)
+                                {
+                                    <a class="videoButton" target="_blank" href="@item.VideoClassUrl"><i style="font-size: 1.6em" class="fa-brands fa-youtube"></i></a>
+                                }
+                                else
+                                {
+                                    @Html.Raw("N/A")
+                                }
+                            </td>
+                            <td>
+                                @if (item.Canceled)
+                                {
+                                    <span>Canceled</span>
+                                }
+                                else
+                                {
+                                    @if (item.DateStart != null && item.DateStart > DateTime.UtcNow)
+                                    {
+                                        <span>Scheduled</span>
+                                    }
+                                    else if (item.DateStart != null && item.DateEnd != null && item.DateStart <= DateTime.UtcNow && item.DateEnd > DateTime.UtcNow)
+                                    {
+                                        <span>Started</span>
+                                    }
+                                    else if (item.DateStart != null && item.DateEnd != null && item.DateEnd > DateTime.UtcNow)
+                                    {
+                                        <span>Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Available</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (item.Capacity != null && item.Capacity > 0)
+                                {
+                                    <span>@item.Capacity</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.SubClass != "VideoClass")
+                                {
+                                    <div class="form-group">
+                                        <button type="button"
+                                                class="btn btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#clientListModal"
+                                        data-clients="@System.Text.Json.JsonSerializer.Serialize(item.ClientList)">
+                                            <i class="fa-solid fa-users me-2"></i>Clients
+                                        </button>
+                                    </div>
+                                }
+                                else if (item.SubClass == "VideoClass")
+                                {
+                                    <div class="form-group">
+                                        <button type="button"
+                                                class="btn btn-info video-details-btn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#videoClassModal"
+                                                data-title="@item.Title"
+                                                data-description="@item.Description">
+                                            <i class="fa-solid fa-list me-2"></i>Details
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div class="modal fade" id="clientListModal" tabindex="-1" aria-labelledby="clientListModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientListModalLabel">List of Clients</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul id="clientList">
+
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div class="modal fade" id="videoClassModal" tabindex="-1" aria-labelledby="videoClassModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoClassModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="videoClassDescription"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-x me-2"></i>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('videoClassModal');
+            const modalTitle = document.getElementById('videoClassModalLabel');
+            const modalDescription = document.getElementById('videoClassDescription');
+
+            // Add event listener for all buttons with the "video-details-btn" class
+            document.querySelectorAll('.video-details-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const title = this.getAttribute('data-title');
+                    const description = this.getAttribute('data-description');
+
+                    // Set the modal content
+                    modalTitle.textContent = title || 'No video title';
+                    modalDescription.textContent = description || 'No video description available';
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const clientListModal = document.getElementById('clientListModal');
+
+            clientListModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const clients = JSON.parse(button.getAttribute('data-clients'));
+
+                const clientListElement = document.getElementById('clientList');
+                clientListElement.innerHTML = ''; // Clear existing content
+
+                // Check if there are any clients
+                if (clients.length === 0) {
+                    const noClientsMessage = document.createElement('p');
+                    noClientsMessage.textContent = "There are no clients registered in this class";
+                    noClientsMessage.classList.add('no-clients-message');
+                    clientListElement.appendChild(noClientsMessage);
+                } else {
+                    clients.forEach(client => {
+                        const li = document.createElement('li');
+                        li.textContent = client; // Assuming client is a string, adjust if necessary
+                        clientListElement.appendChild(li);
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/English.json"
+                },
+                "aLengthMenu": [
+                    [20, 50, 100, 200, -1],
+                    [20, 50, 100, 200, "All"]
+                ]
+            });
+        });
+    </script>
+}

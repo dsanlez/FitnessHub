@@ -1,0 +1,113 @@
+﻿@using FitnessHub.Helpers
+@model FitnessHub.Data.Entities.GymClasses.VideoClass
+
+@inject IConverterHelper converterHelper
+
+@{
+    ViewData["Title"] = "Video Class Details";
+    string embedVideoUrl = converterHelper.YoutubeUrlToEmbed(Model.VideoClassUrl);
+}
+
+<div class="container detailsdelete-text">
+    <h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">Video Class Details</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <dl class="row">
+
+                        <dd class="col-sm-12" style="font-size: 2rem; font-weight:700; margin-bottom: 20px !important">
+                            @Model.ClassType.Name
+                        </dd>
+
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Category)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Model.Category.Name
+                        </dd>
+
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Title)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Model.Title
+                        </dd>
+
+                        <dt class="col-sm-12">
+                            @Html.DisplayNameFor(model => model.Description)
+                        </dt>
+                        <dd class="col-sm-12">
+                            @Model.Description
+                        </dd>
+
+                        <dd class="col-sm-12">
+                            @Html.DisplayFor(model => model.VideoClassUrl)
+                            <br /><div class="mt-2"><a class="videoButton" target="_blank" href="@Model.VideoClassUrl"><i style="font-size: 2.5em" class="fa-brands fa-youtube"></i></a></div>
+                        </dd>
+                    </dl>
+
+                    <div class="form-group">
+                        <a asp-action="VideoClasses" class="btn btn-secondary me-2">
+                            <i class="fa-solid fa-chevron-left me-2"></i>Back
+                        </a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-class-id="@Model.Id">
+                            <i class="fa-solid fa-trash-can me-2"></i>Delete
+                        </button>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Video -->
+        <div class="col-md-6">
+            <dl class="row">
+                <dd class="col-sm-12">
+                    <iframe style="height: 20vw; width:inherit" src="@embedVideoUrl"
+                            title="YouTube Video Player"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you really want to delete this video class?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-x me-2"></i>Cancel</button>
+                <form id="deleteForm" asp-action="DeleteVideoClass" method="post" style="display:inline;">
+                    <input type="hidden" id="classId" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-2"></i>
+                        Confirm Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var classId = button.getAttribute('data-class-id');
+        var form = document.getElementById('deleteForm');
+        form.querySelector('#classId').value = classId;
+    });
+</script>
+

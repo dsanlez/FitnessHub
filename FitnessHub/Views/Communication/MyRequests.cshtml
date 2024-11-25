@@ -1,0 +1,81 @@
+﻿@model IEnumerable<FitnessHub.Models.MyRequestInstructorHistoryViewModel>
+
+@{
+    ViewData["Title"] = "My Requests";
+}
+
+<h2 class="view-text" style="text-align: center; margin-bottom: 4vh; font-weight: bolder; margin-top: 3.5vh">My Requests</h2>
+
+@if (!Model.Any())
+{
+    <hr />
+    <h4 class="no-items-list">There are no Requests on the history!</h4>
+}
+else
+{
+    <div class="card-container">
+        <div class="card cardTable">
+            <table id="dataTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Gym)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Notes)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RequestDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Status)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Gym)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Notes)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.RequestDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Status)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/English.json"
+                },
+                "aLengthMenu": [
+                    [20, 50, 100, 200, -1],
+                    [20, 50, 100, 200, "All"]
+                ],
+                columnDefs: [
+                    { orderable: false, targets: [-1, 0] }
+                ]
+            });
+        });
+    </script>
+}
